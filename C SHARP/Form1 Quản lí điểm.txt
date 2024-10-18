@@ -1,0 +1,345 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Data.SqlClient;
+using BaiTapLon.Properties;
+
+namespace BaiTapLon
+{
+    public partial class Form1 : Form
+    {
+        SqlConnection con = new SqlConnection("Data Source=DESKTOP-IH7IRM0;Initial Catalog=baitaplon;Integrated Security=True");
+        public Form1()
+        {
+            InitializeComponent();
+        }
+        private void Load_cblop()
+        {
+            //B1:KẾT NỐI DB
+            if (con.State != ConnectionState.Open)
+                con.Open();
+            //B2:TẠO ĐỐI TƯỢNG COMMAND ĐỂ LẤY DL TỪ BẢNG LOP
+            SqlCommand cmd = new SqlCommand("Select * From Lop", con);
+            //B3:TẠO ĐỐI TƯỢNG DATAADAPTER ĐỂ LẤY KQ TỪ CMD 
+            SqlDataAdapter da = new SqlDataAdapter();
+            da.SelectCommand = cmd;
+            DataTable tb = new DataTable();
+            da.Fill(tb);
+            cmd.Dispose();
+            con.Close();
+            //B4:ĐỔ DỮ LIỆU TỪ DA VÀO DATAADAPTER
+            //CHÈN 1 DÒNG VÀO VỊ TRÍ ĐẦU TIÊN CỦA BẢNG TB
+            DataRow r = tb.NewRow();
+            r["malop"] = "";
+            r["tenlop"] = "---Chọn lớp---";
+            tb.Rows.InsertAt(r, 0);
+            //B5:ĐỔ DL TỪ TB VÀO COMBOBOX
+            cblop.DataSource = tb;
+            cblop.DisplayMember = "tenlop";
+            cblop.ValueMember = "malop";
+        }
+        private void Load_cbkhoa()
+        {
+            //B1:KẾT NỐI DB
+            if (con.State != ConnectionState.Open)
+                con.Open();
+            //B2:TẠO ĐỐI TƯỢNG COMMAND ĐỂ LẤY DL TỪ BẢNG KHOA
+            SqlCommand cmd = new SqlCommand("Select * From Khoa", con);
+            //B3:TẠO ĐỐI TƯỢNG DATAADAPTER ĐỂ LẤY KQ TỪ CMD 
+            SqlDataAdapter da = new SqlDataAdapter();
+            da.SelectCommand = cmd;
+            DataTable tb = new DataTable();
+            da.Fill(tb);
+            cmd.Dispose();
+            con.Close();
+            //B4:ĐỔ DỮ LIỆU TỪ DA VÀO DATAADAPTER
+            //CHÈN 1 DÒNG VÀO VỊ TRÍ ĐẦU TIÊN CỦA BẢNG TB
+            DataRow r = tb.NewRow();
+            r["makhoa"] = "";
+            r["tenkhoa"] = "---Chọn khoa---";
+            tb.Rows.InsertAt(r, 0);
+            //B5:ĐỔ DL TỪ TB VÀO COMBOBOX
+            cbkhoa.DataSource = tb;
+            cbkhoa.DisplayMember = "tenkhoa";
+            cbkhoa.ValueMember = "makhoa";
+        }
+        private void Load_cbhocphan()
+        {
+            //B1:KẾT NỐI DB
+            if (con.State != ConnectionState.Open)
+                con.Open();
+            //B2:TẠO ĐỐI TƯỢNG COMMAND ĐỂ LẤY DL TỪ BẢNG HOCPHAN
+            SqlCommand cmd = new SqlCommand("Select * From Hocphan", con);
+            //B3:TẠO ĐỐI TƯỢNG DATAADAPTER ĐỂ LẤY KQ TỪ CMD 
+            SqlDataAdapter da = new SqlDataAdapter();
+            da.SelectCommand = cmd;
+            DataTable tb = new DataTable();
+            da.Fill(tb);
+            cmd.Dispose();
+            con.Close();
+            //B4:ĐỔ DỮ LIỆU TỪ DA VÀO DATAADAPTER
+            //CHÈN 1 DÒNG VÀO VỊ TRÍ ĐẦU TIÊN CỦA BẢNG TB
+            DataRow r = tb.NewRow();
+            r["mahp"] = "";
+            r["tenhp"] = "---Chọn học phần---";
+            tb.Rows.InsertAt(r, 0);
+            //B5:ĐỔ DL TỪ TB VÀO COMBOBOX
+            cbhp.DataSource = tb;
+            cbhp.DisplayMember = "tenhp";
+            cbhp.ValueMember = "mahp";
+        }
+        private void Load_grvSinhvien()
+        {
+            //B1:KẾT NỐI ĐẾN DB
+            if (con.State != ConnectionState.Open)
+                con.Open();
+            //B2:TẠO ĐỐI TƯỢNG COMMAND ĐỂ LẤY DL TỪ BẢNG SINHVIEN VÀ LOP VÀ KHOA VÀ HOCPHAN
+            SqlCommand cmd = new SqlCommand("Select Sinhvien.*,tenlop,tenkhoa,tenhp From Sinhvien, Lop,Khoa,Hocphan Where Sinhvien.malop=Lop.malop and Sinhvien.makhoa=Khoa.makhoa and Sinhvien.mahp=Hocphan.mahp ", con);
+            //B3:TẠO ĐỐI TƯỢNG DATAADAPTER ĐỂ LẤY KQ TỪ CMD
+            SqlDataAdapter da = new SqlDataAdapter();
+            da.SelectCommand = cmd;
+            //B4:ĐỔ DỮ LIỆU TỪ DA VÀO TABLE
+            DataTable tb = new DataTable();
+            da.Fill(tb);
+            cmd.Dispose();
+            con.Close();
+            //B5:ĐỔ DL TỪ TB VÀO COMBOBOX
+            grvsinhvien.DataSource = tb;
+            grvsinhvien.Refresh();
+        }
+        private bool kiemtraso(string text)
+        {
+            int kq;
+            return int.TryParse(text, out kq);
+        }
+      
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            Load_grvSinhvien();
+            Load_cblop();
+            Load_cbkhoa();
+            Load_cbhocphan();
+            txtmasv.Enabled = false;            
+            cbgioitinh.Enabled = false;
+            txthoten.Enabled = false;
+            dtngaysinh.Enabled = false;
+            cblop.Enabled = false;
+            txtquequan.Enabled = false;
+            cbkhoa.Enabled = false;
+            txtdiem.Enabled = false;
+            cbhp.Enabled = false;
+            cblanthi.Enabled = false;
+            btnluu.Enabled = false;
+            btnsua.Enabled = false;
+            btnxoa.Enabled = false;
+            grvsinhvien.Enabled = false;
+        }
+
+        private void btnthem_Click(object sender, EventArgs e)
+        {
+            txtmasv.Enabled = true;
+            cbgioitinh.Enabled = true;
+            txthoten.Enabled = true;
+            dtngaysinh.Enabled = true;
+            cblop.Enabled = true;
+            txtquequan.Enabled = true;
+            cbkhoa.Enabled = true;
+            txtdiem.Enabled = true;
+            cbhp.Enabled = true;
+            cblanthi.Enabled = true;
+            btnluu.Enabled = true;
+            grvsinhvien.Enabled=true;
+        }
+        private void btnluu_Click(object sender, EventArgs e)
+        {
+            string p_masv = txtmasv.Text.Trim();
+            string p_tensv = txthoten.Text.Trim();
+            string p_gioitinh = cbgioitinh.SelectedItem.ToString();
+            DateTime p_ngaysinh = dtngaysinh.Value;
+            string p_malop = cblop.SelectedValue.ToString();
+            string p_makhoa = cbkhoa.SelectedValue.ToString();
+            if (!kiemtraso(txtdiem.Text.Trim()))
+            {
+                MessageBox.Show("Phải nhập số");
+                txtdiem.Focus();
+                return;
+            }
+            float p_diem = float.Parse(txtdiem.Text.Trim());
+            string p_quequan = txtquequan.Text.Trim();
+            string p_mahp = cbhp.SelectedValue.ToString();
+            int p_lanthi = int.Parse(cblanthi.SelectedItem.ToString());
+            if (con.State != ConnectionState.Open)
+                con.Open();
+            SqlCommand cmd = new SqlCommand("Sinhvien_Ins", con);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add("@masv", SqlDbType.NVarChar, 50).Value = p_masv;
+            cmd.Parameters.Add("@tensv", SqlDbType.NVarChar, 50).Value = p_tensv;
+            cmd.Parameters.Add("@gioitinh", SqlDbType.NVarChar, 50).Value = p_gioitinh;
+            cmd.Parameters.Add("@ngaysinh", SqlDbType.Date).Value = p_ngaysinh;
+            cmd.Parameters.Add("@malop", SqlDbType.NVarChar, 50).Value = p_malop;
+            cmd.Parameters.Add("@makhoa", SqlDbType.NVarChar, 50).Value = p_makhoa;
+            cmd.Parameters.Add("@diem", SqlDbType.Float).Value = p_diem;
+            cmd.Parameters.Add("@quequan", SqlDbType.NVarChar, 50).Value = p_quequan;
+            cmd.Parameters.Add("@mahp", SqlDbType.NVarChar, 50).Value = p_mahp;
+            cmd.Parameters.Add("@lanthi", SqlDbType.Int).Value = p_lanthi;
+            if (String.IsNullOrEmpty(txtmasv.Text.Trim()))
+            {
+                MessageBox.Show("Bạn chưa điền mã sinh viên!");
+                txtmasv.Focus();
+                return;
+            }
+            if (String.IsNullOrEmpty(cbgioitinh.SelectedItem.ToString()))
+            {
+                MessageBox.Show("Bạn chưa chọn giới tính!");
+                cbgioitinh.Focus();
+                return;
+            }
+            if (String.IsNullOrEmpty(txthoten.Text.Trim()))
+            {
+                MessageBox.Show("Bạn chưa điền họ tên!");
+                txthoten.Focus();
+                return;
+            }
+            if (String.IsNullOrEmpty(cblop.SelectedValue.ToString()))
+            {
+                MessageBox.Show("Bạn chưa chọn lớp!");
+                cblop.Focus();
+                return;
+            }
+            if (String.IsNullOrEmpty(cbkhoa.SelectedValue.ToString()))
+            {
+                MessageBox.Show("Bạn chưa chọn khoa!");
+                cbkhoa.Focus();
+                return;
+            }
+            if (String.IsNullOrEmpty(txtdiem.Text.Trim()))
+            {
+                MessageBox.Show("Bạn chưa ghi điểm!");
+                txtdiem.Focus();
+                return;
+            }
+            if (String.IsNullOrEmpty(txtquequan.Text.Trim()))
+            {
+                MessageBox.Show("Bạn chưa ghi quê quán!");
+                txtquequan.Focus();
+                return;
+            }
+            if (String.IsNullOrEmpty(cbhp.SelectedValue.ToString()))
+            {
+                MessageBox.Show("Bạn chưa chọn học phần!");
+                cbhp.Focus();
+                return;
+            }
+            if (String.IsNullOrEmpty(cblanthi.SelectedItem.ToString()))
+            {
+                MessageBox.Show("Bạn chưa điền số lần thi!");
+                cblanthi.Focus();
+                return;
+            }
+            cmd.ExecuteNonQuery();
+            cmd.Dispose();
+            con.Close();
+            MessageBox.Show("Thêm mới dữ liệu thành công!");
+            Load_grvSinhvien();
+        }
+
+        private void btnsua_Click(object sender, EventArgs e)
+        {
+            string p_masv = txtmasv.Text.Trim();
+            string p_tensv = txthoten.Text.Trim();
+            string p_gioitinh = cbgioitinh.SelectedItem.ToString();
+            DateTime p_ngaysinh = dtngaysinh.Value;
+            string p_malop = cblop.SelectedValue.ToString();
+            string p_makhoa = cbkhoa.SelectedValue.ToString();
+            if (!kiemtraso(txtdiem.Text.Trim()))
+            {
+                MessageBox.Show("Phải nhập số");
+                txtdiem.Focus();
+                return;
+            }
+            float p_diem = float.Parse(txtdiem.Text.Trim());
+            string p_quequan = txtquequan.Text.Trim();
+            string p_mahp = cbhp.SelectedValue.ToString();
+            int p_lanthi = int.Parse(cblanthi.SelectedItem.ToString());
+            if (con.State != ConnectionState.Open)
+                con.Open();
+            SqlCommand cmd = new SqlCommand("Sinhvien_Upd", con);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add("@masv", SqlDbType.NVarChar, 50).Value = p_masv;
+            cmd.Parameters.Add("@tensv", SqlDbType.NVarChar, 50).Value = p_tensv;
+            cmd.Parameters.Add("@gioitinh", SqlDbType.NVarChar, 50).Value = p_gioitinh;
+            cmd.Parameters.Add("@ngaysinh", SqlDbType.Date).Value = p_ngaysinh;
+            cmd.Parameters.Add("@malop", SqlDbType.NVarChar, 50).Value = p_malop;
+            cmd.Parameters.Add("@makhoa", SqlDbType.NVarChar, 50).Value = p_makhoa;
+            cmd.Parameters.Add("@diem", SqlDbType.Float).Value = p_diem;
+            cmd.Parameters.Add("@quequan", SqlDbType.NVarChar, 50).Value = p_quequan;
+            cmd.Parameters.Add("@mahp", SqlDbType.NVarChar, 50).Value = p_mahp;
+            cmd.Parameters.Add("@lanthi", SqlDbType.Int).Value = p_lanthi;
+            cmd.ExecuteNonQuery();
+            cmd.Dispose();
+            con.Close();
+            MessageBox.Show("Sửa dữ liệu thành công!");
+            Load_grvSinhvien();
+        }
+        
+
+        private void btnthoat_Click(object sender, EventArgs e)
+        {
+            DialogResult h = MessageBox.Show
+                 ("Bạn có chắc muốn thoát không?", "Error", MessageBoxButtons.OKCancel);
+            if (h == DialogResult.OK)
+                Application.Exit();
+        }
+
+        private void grvsinhvien_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            int i = e.RowIndex;
+            txtmasv.Text = grvsinhvien.Rows[i].Cells[0].Value.ToString();
+            txthoten.Text = grvsinhvien.Rows[i].Cells[1].Value.ToString();
+            dtngaysinh.Value = DateTime.Parse(grvsinhvien.Rows[i].Cells[2].Value.ToString());
+            cbgioitinh.SelectedItem = grvsinhvien.Rows[i].Cells[3].Value.ToString();
+            txtquequan.Text = grvsinhvien.Rows[i].Cells[4].Value.ToString();
+            cblop.SelectedValue = grvsinhvien.Rows[i].Cells[5].Value.ToString();
+            cblanthi.SelectedItem = grvsinhvien.Rows[i].Cells[6].Value.ToString();
+            txtdiem.Text = grvsinhvien.Rows[i].Cells[7].Value.ToString();
+            cbkhoa.SelectedValue = grvsinhvien.Rows[i].Cells[8].Value.ToString();
+            cbhp.SelectedValue = grvsinhvien.Rows[i].Cells[9].Value.ToString();
+            txtmasv.Enabled = false;
+            cbkhoa.Enabled = false;
+            cblop.Enabled = false;
+            btnthem.Enabled = true;
+            btnxoa.Enabled = true;
+            btnsua.Enabled = true;
+        }
+
+        private void btntimkiem_Click(object sender, EventArgs e)
+        {
+            Form2 frm2 = new Form2();
+            frm2.Show();
+        }
+        private void btnxoa_Click(object sender, EventArgs e)
+        {
+            string p_masv = txtmasv.Text.Trim();
+            if (con.State != ConnectionState.Open)
+                con.Open();
+            string p_sql = "Delete from Sinhvien Where masv='" + p_masv + "'";
+            SqlCommand cmd = new SqlCommand(p_sql, con);
+            SqlDataAdapter da = new SqlDataAdapter();
+            da.SelectCommand = cmd;
+            cmd.ExecuteNonQuery();
+            cmd.Dispose();
+            con.Close();
+            DialogResult h = MessageBox.Show
+                ("Bạn có chắc muốn xóa không?", "Error", MessageBoxButtons.OKCancel);
+            if (h == DialogResult.OK)
+                Load_grvSinhvien();
+            MessageBox.Show("Xóa dữ liệu thành công!");
+        }
+    }
+}

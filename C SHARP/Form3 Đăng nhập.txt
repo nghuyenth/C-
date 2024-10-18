@@ -1,0 +1,104 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Data.SqlClient;
+
+namespace BaiTapLon
+{
+    public partial class Form3 : Form
+    {
+        public static string taikhoan = "";
+        SqlConnection con = new SqlConnection("Data Source=DESKTOP-IH7IRM0;Initial Catalog=baitaplon;Integrated Security=True");
+
+        public Form3()
+        {
+            InitializeComponent();
+        }
+
+        private void btnthoat_Click(object sender, EventArgs e)
+        {
+            DialogResult dg = MessageBox.Show("Bạn có muốn thoát ?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (dg == DialogResult.Yes)
+                Application.Exit();
+        }
+
+        private void ckhienthi_CheckedChanged(object sender, EventArgs e)
+        {
+            if (ckhienthi.Checked)
+            {
+                txtmatkhau.PasswordChar = (char)0;
+            }
+            else
+            {
+                txtmatkhau.PasswordChar = '*';
+            }
+        }
+
+        private void btndangnhap_Click(object sender, EventArgs e)
+        {
+            SqlConnection con = new SqlConnection("Data Source=DESKTOP-IH7IRM0;Initial Catalog=baitaplon;Integrated Security=True");
+            try
+            {
+                if (con.State != ConnectionState.Open)
+                    con.Open();
+                SqlCommand cmd = new SqlCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "SP_Authorlogin";
+                cmd.Parameters.AddWithValue("@taikhoan", txttaikhoan.Text);
+                cmd.Parameters.AddWithValue("@matkhau", txtmatkhau.Text);
+                cmd.Connection = con;
+                taikhoan = txttaikhoan.Text;
+                object kq = cmd.ExecuteScalar();
+                int code = Convert.ToInt32(kq);
+                if (code == 0)
+                {
+                    MessageBox.Show("Chào mừng đăng nhập", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    Form1 frm1 = new Form1();
+                    frm1.Show();
+                }
+                else if (code == 1)
+                {
+                    MessageBox.Show("Chào mừng đăng nhập", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    Form1 frm1 = new Form1();
+                    frm1.Show();
+                }
+                else if (code == 2)
+                {
+                    MessageBox.Show("Tài khoản hoặc mật khẩu không đúng !!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    txtmatkhau.Text = "";
+                    txttaikhoan.Text = "";
+                    txttaikhoan.Focus();
+                }
+                else
+                {
+                    MessageBox.Show("Đăng nhập không đúng !!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    txtmatkhau.Text = "";
+                    txttaikhoan.Text = "";
+                    txttaikhoan.Focus();
+                }
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+        }
+
+        private void txttaikhoan_MouseClick(object sender, MouseEventArgs e)
+        {
+            txttaikhoan.SelectAll();
+        }
+
+        private void txtmatkhau_MouseClick(object sender, MouseEventArgs e)
+        {
+            txtmatkhau.SelectAll();
+        }
+    }
+}

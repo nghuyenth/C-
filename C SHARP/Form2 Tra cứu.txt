@@ -1,0 +1,43 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Data.SqlClient;
+
+
+namespace BaiTapLon
+{
+    public partial class Form2 : Form
+    {
+        SqlConnection con = new SqlConnection("Data Source=DESKTOP-IH7IRM0;Initial Catalog=baitaplon;Integrated Security=True");
+
+        public Form2()
+        {
+            InitializeComponent();
+        }
+
+        private void txtmasv_TextChanged(object sender, EventArgs e)
+        {
+            string p_masv = txtmasv.Text.Trim();
+            if (con.State != ConnectionState.Open)
+                con.Open();
+            SqlCommand cmd = new SqlCommand("Sinhvien_Malop_Find", con);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add("@masv", SqlDbType.NVarChar, 50).Value = p_masv;
+            SqlDataAdapter da = new SqlDataAdapter();
+            da.SelectCommand = cmd;
+            DataTable tb = new DataTable();
+            da.Fill(tb);
+            cmd.Dispose();
+            con.Close();
+            grvtracuu.DataSource = tb;
+            grvtracuu.Refresh();
+
+        }
+    }
+}
